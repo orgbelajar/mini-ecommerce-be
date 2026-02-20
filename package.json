@@ -1,12 +1,26 @@
 {
   "name": "migrate-hono-bun",
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --hot src/index.ts",
+    "lint": "eslint ./"
   },
   "dependencies": {
-    "hono": "^4.11.10"
+    "@prisma/adapter-pg": "^7.4.1",
+    "@prisma/client": "^7.4.1",
+    "dotenv": "^17.3.1",
+    "hono": "^4.11.10",
+    "nanoid": "^5.1.6",
+    "pg": "^8.18.0",
+    "winston": "^3.19.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@eslint/js": "^10.0.1",
+    "@types/bun": "latest",
+    "@types/pg": "^8.16.0",
+    "eslint": "^10.0.1",
+    "globals": "^17.3.0",
+    "prisma": "^7.4.1",
+    "typescript-eslint": "^8.56.0"
   }
 }
