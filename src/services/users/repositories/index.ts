@@ -29,8 +29,9 @@ export class UserRepository {
     const id = `user-${nanoid(17)}`;
 
     request.password = await Bun.password.hash(request.password, {
-      algorithm: "bcrypt",
-      cost: 10,
+      algorithm: "argon2id",
+      memoryCost: 19456,
+      timeCost: 2,
     });
 
     const user = await prisma.user.create({

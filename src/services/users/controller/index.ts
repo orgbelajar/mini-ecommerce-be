@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import { RegisterUserRequest } from "../../../model/user-model";
 import { UserRepository } from "../repositories/index";
 
-
 export const userController = new Hono();
 
 userController.post("/api/users", async (c) => {
@@ -10,7 +9,12 @@ userController.post("/api/users", async (c) => {
 
   const response = await UserRepository.registerUser(request);
 
-  return c.json({
-    data: response,
-  });
+  return c.json(
+    {
+      status: "success",
+      message: "User berhasil ditambahkan",
+      data: response,
+    },
+    201,
+  );
 });
