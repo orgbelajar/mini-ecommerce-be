@@ -1,30 +1,19 @@
 import { prisma } from "../../../applications/database";
 import {
+  VerifyCredentialRequest,
   RegisterUserRequest,
   UserResponse,
   toUserResponse,
+  VerifyUsernameRequest,
 } from "../../../model/user-model";
-import { UserValidation } from "../validator";
-import { HTTPException } from "hono/http-exception";
 import { nanoid } from "nanoid";
+import { InvariantError } from "../../../exceptions/index";
 
 export class UserRepository {
   static async registerUser(
     request: RegisterUserRequest,
   ): Promise<UserResponse> {
-    request = UserValidation.REGISTER.parse(request);
-
-    const totalUserWithSameUsername = await prisma.user.count({
-      where: {
-        username: request.username,
-      },
-    });
-
-    if (totalUserWithSameUsername != 0) {
-      throw new HTTPException(400, {
-        message: "Username already exists",
-      });
-    }
+    await this.verifyNewUsername(request);
 
     const id = `user-${nanoid(17)}`;
 
@@ -42,5 +31,74 @@ export class UserRepository {
     });
 
     return toUserResponse(user);
+  }
+
+  static async verifyNewUsername(request: VerifyUsernameRequest): Promise<void> {
+    const totalUserWithSameUsername = await prisma.user.count({
+      where: {
+        username: request.username,
+      },
+    });
+
+    if (totalUserWithSameUsername != 0) {
+      throw new InvariantError(
+        "Username sudah terdaftar, mohon pilih username lain",
+      );
+    }
+  }
+
+  static async getUserById(id: string): Promise<UserResponse> {
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!user) {
+      throw new InvariantError("User tidak ditemukan");
+    }
+
+    return toUserResponse(user);
+  }
+
+  static async verifyCredential(request: VerifyCredentialRequest): Promise<string> {
+    const user = await prisma.user.findUnique({
+      where: {
+        username: request.username,
+      },
+      select: {
+        id: true,
+        password: true,
+      },
+    });
+
+    if (!user) {
+      throw new InvariantError("User tidak ditemukan");
+    }
+
+    const { id, password: hashedPassword } = user;
+
+    const isPasswordValid = await Bun.password.verify(
+      request.password,
+      hashedPassword,
+    );
+
+    if (!isPasswordValid) {
+      throw new InvariantError("Password salah");
+    }
+
+    return id;
+  }
+
+  static async getUsersByUsername(username: string): Promise<UserResponse[]> {
+    const user = await prisma.user.findMany({
+      where: {
+        username: {
+          contains: username,
+        },
+      },
+    });
+
+    return user.map((user) => toUserResponse(user));
   }
 }
