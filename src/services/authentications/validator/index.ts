@@ -2,7 +2,7 @@ import { z, ZodType } from "zod";
 import { RefreshTokenRequest, VerifyUserCredentialRequest } from "../../../model/auth-model";
 
 export const refreshTokenPayloadSchema: ZodType<RefreshTokenRequest> = z.object({
-  token: z.string().nonempty().max(100),
+  token: z.string().nonempty(),
 });
 
 export const verifyUserCredentialPayloadSchema: ZodType<VerifyUserCredentialRequest> = z.object({
