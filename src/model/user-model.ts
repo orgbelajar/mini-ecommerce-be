@@ -16,11 +16,6 @@ export type VerifyUsernameRequest = {
   username: string;
 };
 
-export type VerifyCredentialRequest = {
-  username: string;
-  password: string;
-};
-
 export function toUserResponse(user: User): UserResponse {
   return {
     id: user.id,

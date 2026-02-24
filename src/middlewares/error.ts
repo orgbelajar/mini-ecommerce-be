@@ -4,8 +4,6 @@ import { ClientError } from "../exceptions/index";
 // import { logger } from "../applications/logging";
 
 const ErrorHandler = (err: Error, c: Context) => {
-  // Handle ClientError dan subclass-nya (InvariantError, NotFoundError)
-  // ClientError sudah extend HTTPException, jadi cukup satu pengecekan
   if (err instanceof ClientError) {
     return c.json({ errors: err.message }, err.status);
   }

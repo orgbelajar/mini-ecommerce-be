@@ -1,13 +1,13 @@
 import { prisma } from "../../../applications/database";
 import {
-  VerifyCredentialRequest,
   RegisterUserRequest,
   UserResponse,
   toUserResponse,
   VerifyUsernameRequest,
 } from "../../../model/user-model";
+import { VerifyUserCredentialRequest } from "../../../model/auth-model";
 import { nanoid } from "nanoid";
-import { InvariantError } from "../../../exceptions/index";
+import { InvariantError, NotFoundError, AuthenticationError } from "../../../exceptions/index";
 
 export class UserRepository {
   static async registerUser(
@@ -55,14 +55,14 @@ export class UserRepository {
     });
 
     if (!user) {
-      throw new InvariantError("User tidak ditemukan");
+      throw new NotFoundError("User tidak ditemukan");
     }
 
     return toUserResponse(user);
   }
 
-  static async verifyCredential(request: VerifyCredentialRequest): Promise<string> {
-    const user = await prisma.user.findUnique({
+  static async verifyUserCredential(request: VerifyUserCredentialRequest): Promise<string> {
+    const userId = await prisma.user.findUnique({
       where: {
         username: request.username,
       },
@@ -72,11 +72,11 @@ export class UserRepository {
       },
     });
 
-    if (!user) {
-      throw new InvariantError("User tidak ditemukan");
+    if (!userId) {
+      throw new AuthenticationError("Kredensial anda yang diberikan salah");
     }
 
-    const { id, password: hashedPassword } = user;
+    const { id, password: hashedPassword } = userId;
 
     const isPasswordValid = await Bun.password.verify(
       request.password,
@@ -84,14 +84,14 @@ export class UserRepository {
     );
 
     if (!isPasswordValid) {
-      throw new InvariantError("Password salah");
+      throw new InvariantError("Password yang anda berikan salah");
     }
 
     return id;
   }
 
   static async getUsersByUsername(username: string): Promise<UserResponse[]> {
-    const user = await prisma.user.findMany({
+    const users = await prisma.user.findMany({
       where: {
         username: {
           contains: username,
@@ -99,6 +99,6 @@ export class UserRepository {
       },
     });
 
-    return user.map((user) => toUserResponse(user));
+    return users.map((user) => toUserResponse(user));
   }
 }
