@@ -45,23 +45,28 @@ export class CartRepositories {
   // Done
   static async verifyCartAccess(
     request: VerifyCartAccessRequest,
-  ): Promise<boolean> {
-    const ownerResult = await this.verifyCartOwner({
-      id: request.cartId,
-      ownerId: request.userId,
-    });
-
-    if (ownerResult) {
-      return true;
-    }
-
-    const collaboratorResult =
-      await CollaborationRepositories.verifyCollaborator({
-        cartId: request.cartId,
-        userId: request.userId,
+  ): Promise<void> {
+    try {
+      // Cek apakah dia owner
+      await this.verifyCartOwner({
+        id: request.cartId,
+        ownerId: request.userId,
       });
+      // error berisi AuthorizationError dari pengecekan owner
+    } catch (error) {
+      // Jika bukan owner (AuthorizationError) dan cart tidak ditemukan akan throw NotFoundError
+      if (error instanceof NotFoundError) {
+        throw error;
+      }
 
-    return collaboratorResult;
+      try {
+        // Jika bukan owner dan cart ditemukan, cek apakah dia collaborator
+        await CollaborationRepositories.verifyCollaborator(request);
+      } catch {
+        // Jika bukan collaborator, lempar error asli dari pengecekan owner (AuthorizationError)
+        throw error;
+      }
+    }
   }
 
   // Done

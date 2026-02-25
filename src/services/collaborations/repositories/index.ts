@@ -22,7 +22,7 @@ export class CollaborationRepositories {
 
     if (!collaborator) {
       throw new InvariantError(
-        "Kolaborator gagal diverifikasi. Anda tidak berhak mengakses cart ini.",
+        "Kolaborator gagal diverifikasi",
       );
     }
 
