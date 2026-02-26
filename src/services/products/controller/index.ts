@@ -7,7 +7,7 @@ import {
 
 export const productController = new Hono();
 
-productController.post("/api/products", async (c) => {
+productController.post("/api/product", async (c) => {
   const request = addProductPayloadSchema.parse(await c.req.json());
 
   const response = await ProductRepository.addProduct(request);
@@ -22,7 +22,7 @@ productController.post("/api/products", async (c) => {
   );
 });
 
-productController.get("/api/products/:id", async (c) => {
+productController.get("/api/product/:id", async (c) => {
   const id = c.req.param("id");
 
   const response = await ProductRepository.getProductById(id);
@@ -36,7 +36,7 @@ productController.get("/api/products/:id", async (c) => {
   );
 });
 
-productController.put("/api/products/:id", async (c) => {
+productController.put("/api/product/:id", async (c) => {
   const id = c.req.param("id");
   const request = editProductPayloadSchema.parse(await c.req.json());
 
@@ -52,7 +52,7 @@ productController.put("/api/products/:id", async (c) => {
   );
 });
 
-productController.delete("/api/products/:id", async (c) => {
+productController.delete("/api/product/:id", async (c) => {
   const id = c.req.param("id");
 
   await ProductRepository.deleteProductById(id);
