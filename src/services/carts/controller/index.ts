@@ -3,26 +3,21 @@ import { CartRepositories } from "../repositories/index";
 import {
   addCartPayloadSchema,
   addProductToCartPayloadSchema,
+  deleteProductFromCartPayloadSchema,
 } from "../validator/index";
 import { authMiddleware } from "../../../middlewares/auth";
+import { User } from "../../../../generated/prisma/client";
+import { ApplicationVariables } from "../../../model/app-model";
 
-type Variables = {
-  user: {
-    id: string;
-  };
-};
-
-export const cartController = new Hono<{ Variables: Variables }>();
+export const cartController = new Hono<{ Variables: ApplicationVariables }>();
 
 cartController.use(authMiddleware);
 
-// --- Cart CRUD ---
-
 cartController.post("/api/carts", async (c) => {
-  const user = c.get("user"); // from authMiddleware c.set("user", { id: user.id });, example: "user-9pW6MNVi_7wgGI2js"
+  const user = c.get("user") as User; // from authMiddleware c.set("user", { id: user.id });, example: "user-9pW6MNVi_7wgGI2js"
   const request = addCartPayloadSchema.parse(await c.req.json());
 
-  const response = await CartRepositories.addCart(user.id, request);
+  const response = await CartRepositories.addCart(user, request);
 
   return c.json(
     {
@@ -34,29 +29,28 @@ cartController.post("/api/carts", async (c) => {
   );
 });
 
-// TODO: implement getCarts
-// cartController.get("/api/carts", async (c) => {
-//   const user = c.get("user");
-//   const response = await CartRepositories.getCarts(user.id);
+cartController.get("/api/carts", async (c) => {
+  const user = c.get("user") as User;
+  const response = await CartRepositories.getCarts(user);
 
-//   return c.json(
-//     {
-//       status: "success",
-//       data: response,
-//     },
-//     200,
-//   );
-// });
+  return c.json(
+    {
+      status: "success",
+      data: response,
+    },
+    200,
+  );
+});
 
 cartController.delete("/api/carts/:id", async (c) => {
-  const Id = c.req.param("id");
-  const user = c.get("user");
+  const cartId = c.req.param("id");
+  const user = c.get("user") as User;
 
   await CartRepositories.verifyCartOwner({
-    cartId: Id,
-    userId: user.id,
+    cartId,
+    ownerId: user.id,
   });
-  await CartRepositories.deleteCartById(Id);
+  await CartRepositories.deleteCartById({ cartId });
 
   return c.json(
     {
@@ -67,18 +61,18 @@ cartController.delete("/api/carts/:id", async (c) => {
   );
 });
 
-// --- Cart Items ---
-
+// Done
 cartController.post("/api/carts/:id/products", async (c) => {
-  const cartId = c.req.param("id");
-  const user = c.get("user");
   const request = addProductToCartPayloadSchema.parse(await c.req.json());
+  const cartId = c.req.param("id");
+  const user = c.get("user") as User;
 
-  const response = await CartRepositories.addProductToCart(
+  await CartRepositories.verifyCartAccess({
     cartId,
-    user.id,
-    request,
-  );
+    userId: user.id,
+  });
+
+  const response = await CartRepositories.addProductToCart(request);
 
   return c.json(
     {
@@ -90,11 +84,17 @@ cartController.post("/api/carts/:id/products", async (c) => {
   );
 });
 
+// Done
 cartController.get("/api/carts/:id/products", async (c) => {
   const cartId = c.req.param("id");
-  const user = c.get("user");
+  const user = c.get("user") as User;
 
-  const response = await CartRepositories.getProductsFromCart(cartId, user.id);
+  await CartRepositories.verifyCartAccess({
+    cartId,
+    userId: user.id,
+  });
+
+  const response = await CartRepositories.getProductsFromCart({ cartId });
 
   return c.json(
     {
@@ -105,12 +105,28 @@ cartController.get("/api/carts/:id/products", async (c) => {
   );
 });
 
-cartController.delete("/api/carts/:id/products/:itemId", async (c) => {
+// Done
+cartController.delete("/api/carts/:id/products", async (c) => {
+  const request = deleteProductFromCartPayloadSchema.parse(await c.req.json());
   const cartId = c.req.param("id");
-  const itemId = c.req.param("itemId");
-  const user = c.get("user");
+  const user = c.get("user") as User;
 
-  await CartRepositories.deleteProductFromCart(cartId, itemId, user.id);
+  await CartRepositories.verifyCartAccess({
+    cartId,
+    userId: user.id,
+  });
+
+  await CartRepositories.deleteProductFromCart({
+    cartId,
+    productId: request.productId,
+  });
+
+  await CartRepositories.addCartActivities({
+    cartId,
+    productId: request.productId,
+    userId: user.id,
+    action: "delete",
+  });
 
   return c.json(
     {
@@ -121,13 +137,17 @@ cartController.delete("/api/carts/:id/products/:itemId", async (c) => {
   );
 });
 
-// --- Cart Activities ---
-
+// Done
 cartController.get("/api/carts/:id/activities", async (c) => {
   const cartId = c.req.param("id");
-  const user = c.get("user");
+  const user = c.get("user") as User;
 
-  const response = await CartRepositories.getCartActivities(cartId, user.id);
+  await CartRepositories.verifyCartAccess({
+    cartId,
+    userId: user.id,
+  });
+
+  const response = await CartRepositories.getCartActivities({ cartId });
 
   return c.json(
     {

@@ -1,11 +1,9 @@
 import { prisma } from "../../../applications/database";
 import {
-  AddCartRequest,
   AddProductToCartRequest,
   CartResponse,
   CartWithProductsResponse,
   CartActivityResponse,
-  CartsRequest,
   CartIdRequest,
   toCartResponse,
   toCartWithProductsResponse,
@@ -15,20 +13,20 @@ import {
   AddCartActivityRequest,
   VerifyCartOwnerRequest,
   VerifyCartAccessRequest,
+  AddCartPayload,
 } from "../../../model/cart-model";
 import { nanoid } from "nanoid";
 import NotFoundError from "../../../exceptions/not-found-error";
 import InvariantError from "../../../exceptions/invariant-error";
 import AuthorizationError from "../../../exceptions/authorization-error";
 import { CollaborationRepositories } from "../../collaborations/repositories/index";
+import { User } from "../../../../generated/prisma/client";
 
 export class CartRepositories {
   // Done
-  static async verifyCartOwner(
-    request: VerifyCartOwnerRequest,
-  ): Promise<CartResponse> {
+  static async verifyCartOwner(request: VerifyCartOwnerRequest): Promise<void> {
     const cart = await prisma.cart.findUnique({
-      where: { id: request.id },
+      where: { id: request.cartId },
     });
 
     if (!cart) {
@@ -39,7 +37,7 @@ export class CartRepositories {
       throw new AuthorizationError("Anda tidak berhak mengakses cart ini");
     }
 
-    return toCartResponse(cart);
+    // return toCartResponse(cart);
   }
 
   // Done
@@ -49,7 +47,7 @@ export class CartRepositories {
     try {
       // Cek apakah dia owner
       await this.verifyCartOwner({
-        id: request.cartId,
+        cartId: request.cartId,
         ownerId: request.userId,
       });
       // error berisi AuthorizationError dari pengecekan owner
@@ -84,31 +82,37 @@ export class CartRepositories {
   }
 
   // Done
-  static async addCart(request: AddCartRequest): Promise<CartResponse> {
+  static async addCart(
+    ownerId: User,
+    request: AddCartPayload,
+  ): Promise<{ cartId: string }> {
     const id = `cart-${nanoid(16)}`;
 
+    const data = {
+      id,
+      ownerId: ownerId.id,
+      ...request,
+    };
+
     const cart = await prisma.cart.create({
-      data: {
-        id,
-        ...request,
-      },
+      data: data,
     });
 
-    return toCartResponse(cart);
+    return { cartId: cart.id };
   }
 
   // Done
-  static async getCarts(request: CartsRequest): Promise<CartResponse[]> {
+  static async getCarts(ownerId: User): Promise<CartResponse[]> {
     const carts = await prisma.cart.findMany({
       where: {
         OR: [
           // Kondisi 1: user adalah owner
-          { ownerId: request.ownerId },
+          { ownerId: ownerId.id },
           // Kondisi 2: user adalah kolaborator
           {
             collaborators: {
               some: {
-                userId: request.ownerId,
+                userId: ownerId.id,
               },
             },
           },
@@ -126,7 +130,7 @@ export class CartRepositories {
     });
     // Karena mengambil username, maka perlu menyesuaikan mapping response-nya
     return carts.map((cart) => ({
-      ...toCartResponse(cart),
+      ...toCartResponse(cart), // id, name, createdAt, updatedAt
       ownerUsername: cart.owner.username, // Menambahkan info username
     }));
   }
@@ -134,7 +138,7 @@ export class CartRepositories {
   // Done
   static async deleteCartById(request: CartIdRequest): Promise<void> {
     const cart = await prisma.cart.delete({
-      where: { id: request.id },
+      where: { id: request.cartId },
     });
 
     if (!cart) {
@@ -190,7 +194,7 @@ export class CartRepositories {
     request: CartIdRequest,
   ): Promise<CartWithProductsResponse> {
     const cart = await prisma.cart.findUnique({
-      where: { id: request.id },
+      where: { id: request.cartId },
       include: {
         owner: {
           select: { username: true },

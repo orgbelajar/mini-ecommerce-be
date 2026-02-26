@@ -1,8 +1,11 @@
 import { Cart, CartItem, CartActivity } from "../../generated/prisma/client";
 
-export type AddCartRequest = {
+export type AddCartPayload = {
   name: string;
-  ownerId: string;
+};
+
+export type DeleteProductFromCartPayload = {
+  productId: string;
 };
 
 export type AddCartActivityRequest = {
@@ -28,7 +31,7 @@ export type DeleteProductFromCartRequest = {
 };
 
 export type VerifyCartOwnerRequest = {
-  id: string;
+  cartId: string;
   ownerId: string;
 };
 
@@ -37,17 +40,14 @@ export type VerifyCartAccessRequest = {
   userId: string;
 };
 
-export type CartsRequest = {
-  ownerId: string;
-};
-
 export type CartIdRequest = {
-  id: string;
+  cartId: string;
 };
 
 export type CartResponse = {
   id: string;
   name: string;
+  // ownerId: string;
   ownerUsername?: string;
   createdAt: Date;
   updatedAt: Date;

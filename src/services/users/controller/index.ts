@@ -1,8 +1,9 @@
 import { Hono } from "hono";
 import { UserRepository } from "../repositories/index";
 import { userPayloadSchema } from "../validator/index";
+import { ApplicationVariables } from "../../../model/app-model";
 
-export const userController = new Hono();
+export const userController = new Hono<{ Variables: ApplicationVariables }>();
 
 userController.post("/api/users", async (c) => {
   const request = userPayloadSchema.parse(await c.req.json());
