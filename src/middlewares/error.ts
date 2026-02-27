@@ -5,17 +5,17 @@ import { ClientError } from "../exceptions/index";
 
 const ErrorHandler = (err: Error, c: Context) => {
   if (err instanceof ClientError) {
-    return c.json({ errors: err.message }, err.status);
+    return c.json({ status: "fail", message: err.message }, err.status);
   }
 
   // Handle Zod validation errors
   if (err instanceof ZodError) {
-    return c.json({ errors: err.issues[0].message }, 400);
+    return c.json({ status: "fail", message: err.issues[0].message }, 400);
   }
 
   // Unhandled error
   console.error("Unhandled error:", err);
-  return c.json({ errors: "Internal Server Error" }, 500);
+  return c.json({ status: "error", message: "Internal Server Error" }, 500);
 };
 
 export default ErrorHandler;

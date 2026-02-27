@@ -12,8 +12,11 @@ export type EditProductRequest = {
   name?: string;
   description?: string;
   price?: number;
-  stock?: number;
   categoryId?: string;
+};
+
+export type RestockProductRequest = {
+  stock: number;
 };
 
 export type ProductResponse = {

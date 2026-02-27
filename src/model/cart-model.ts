@@ -33,12 +33,12 @@ export type DeleteProductFromCartRequest = {
 
 export type VerifyCartOwnerRequest = {
   cartId: string;
-  ownerId: string;
+  // ownerId: string;
 };
 
 export type VerifyCartAccessRequest = {
   cartId: string;
-  userId: string;
+  // userId: string;
 };
 
 export type CartIdRequest = {

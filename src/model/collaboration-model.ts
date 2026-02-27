@@ -2,7 +2,7 @@ import { CartSharedUser } from "../../generated/prisma/client";
 
 export type CollaborationRequest = {
   cartId: string;
-  userId: string;
+  // userId: string;
 };
 
 export type CollaborationResponse = {

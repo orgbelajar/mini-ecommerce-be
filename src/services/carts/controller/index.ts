@@ -46,10 +46,7 @@ cartController.delete("/api/cart/:id", async (c) => {
   const cartId = c.req.param("id");
   const user = c.get("user") as User;
 
-  await CartRepositories.verifyCartOwner({
-    cartId,
-    ownerId: user.id,
-  });
+  await CartRepositories.verifyCartOwner({ cartId }, user);
   await CartRepositories.deleteCartById({ cartId });
 
   return c.json(
@@ -67,10 +64,7 @@ cartController.post("/api/cart/:id/product", async (c) => {
   const cartId = c.req.param("id");
   const user = c.get("user") as User;
 
-  await CartRepositories.verifyCartAccess({
-    cartId,
-    userId: user.id,
-  });
+  await CartRepositories.verifyCartAccess({ cartId }, user);
 
   await CartRepositories.addProductToCart(
     cartId,
@@ -93,10 +87,7 @@ cartController.get("/api/cart/:id/products", async (c) => {
   const cartId = c.req.param("id");
   const user = c.get("user") as User;
 
-  await CartRepositories.verifyCartAccess({
-    cartId,
-    userId: user.id,
-  });
+  await CartRepositories.verifyCartAccess({ cartId }, user);
 
   const response = await CartRepositories.getProductsFromCart({ cartId });
 
@@ -115,10 +106,7 @@ cartController.delete("/api/carts/:id/products", async (c) => {
   const cartId = c.req.param("id");
   const user = c.get("user") as User;
 
-  await CartRepositories.verifyCartAccess({
-    cartId,
-    userId: user.id,
-  });
+  await CartRepositories.verifyCartAccess({ cartId }, user);
 
   await CartRepositories.deleteProductFromCart(user.id, user.username, {
     cartId,
@@ -135,14 +123,11 @@ cartController.delete("/api/carts/:id/products", async (c) => {
 });
 
 // Done
-cartController.get("/api/carts/:id/activities", async (c) => {
+cartController.get("/api/cart/:id/activities", async (c) => {
   const cartId = c.req.param("id");
   const user = c.get("user") as User;
 
-  await CartRepositories.verifyCartAccess({
-    cartId,
-    userId: user.id,
-  });
+  await CartRepositories.verifyCartAccess({ cartId }, user);
 
   const response = await CartRepositories.getCartActivities({ cartId });
 

@@ -82,7 +82,7 @@ export class UserRepository {
     });
 
     if (!user) {
-      throw new AuthenticationError("Kredensial yang anda diberikan salah");
+      throw new AuthenticationError("Kredensial yang anda berikan salah");
     }
 
     const { id, username, password: hashedPassword } = user;

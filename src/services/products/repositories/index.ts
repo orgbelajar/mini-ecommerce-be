@@ -2,6 +2,7 @@ import { prisma } from "../../../applications/database";
 import {
   AddProductRequest,
   EditProductRequest,
+  RestockProductRequest,
   ProductResponse,
   toProductResponse,
 } from "../../../model/product-model";
@@ -50,6 +51,22 @@ export class ProductRepository {
       },
       data: {
         ...request,
+      },
+    });
+
+    return toProductResponse(product);
+  }
+
+  static async restockProduct(
+    id: string,
+    request: RestockProductRequest,
+  ): Promise<ProductResponse> {
+    await this.getProductById(id);
+
+    const product = await prisma.product.update({
+      where: { id },
+      data: {
+        stock: { increment: request.stock },
       },
     });
 

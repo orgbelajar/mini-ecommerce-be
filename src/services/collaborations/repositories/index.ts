@@ -7,16 +7,18 @@ import {
 import { nanoid } from "nanoid";
 import NotFoundError from "../../../exceptions/not-found-error";
 import InvariantError from "../../../exceptions/invariant-error";
+import { User } from "../../../../generated/prisma/client";
 
 export class CollaborationRepositories {
   // Done
   static async verifyCollaborator(
     request: CollaborationRequest,
+    userId: User,
   ): Promise<boolean> {
     const collaborator = await prisma.cartSharedUser.findFirst({
       where: {
         cartId: request.cartId,
-        userId: request.userId,
+        userId: userId.id,
       },
     });
 
@@ -28,64 +30,65 @@ export class CollaborationRepositories {
 
     return true;
   }
-
-  static async addCollaboration(
-    request: CollaborationRequest,
-  ): Promise<CollaborationResponse> {
-    const { cartId, userId } = request;
-
-    // Pastikan user eksis
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!user) {
-      throw new NotFoundError("User tidak ditemukan");
-    }
-
-    // Hindari duplikasi
-    const existingCollab = await prisma.cartSharedUser.findFirst({
-      where: {
-        cartId,
-        userId,
-      },
-    });
-
-    if (existingCollab) {
-      return toCollaborationResponse(existingCollab);
-    }
-
-    const id = `collab-${nanoid(16)}`;
-
-    const collaboration = await prisma.cartSharedUser.create({
-      data: {
-        id,
-        cartId,
-        userId,
-      },
-    });
-
-    return toCollaborationResponse(collaboration);
-  }
-
-  static async deleteCollaboration(
-    request: CollaborationRequest,
-  ): Promise<void> {
-    const collaboration = await prisma.cartSharedUser.findFirst({
-      where: {
-        cartId: request.cartId,
-        userId: request.userId,
-      },
-    });
-
-    if (!collaboration) {
-      throw new NotFoundError("Kolaborator tidak ditemukan pada cart ini");
-    }
-
-    await prisma.cartSharedUser.delete({
-      where: {
-        id: collaboration.id,
-      },
-    });
-  }
 }
+
+//   static async addCollaboration(
+//     request: CollaborationRequest,
+//   ): Promise<CollaborationResponse> {
+//     const { cartId, userId } = request;
+
+//     // Pastikan user eksis
+//     const user = await prisma.user.findUnique({
+//       where: { id: userId },
+//     });
+
+//     if (!user) {
+//       throw new NotFoundError("User tidak ditemukan");
+//     }
+
+//     // Hindari duplikasi
+//     const existingCollab = await prisma.cartSharedUser.findFirst({
+//       where: {
+//         cartId,
+//         userId,
+//       },
+//     });
+
+//     if (existingCollab) {
+//       return toCollaborationResponse(existingCollab);
+//     }
+
+//     const id = `collab-${nanoid(16)}`;
+
+//     const collaboration = await prisma.cartSharedUser.create({
+//       data: {
+//         id,
+//         cartId,
+//         userId,
+//       },
+//     });
+
+//     return toCollaborationResponse(collaboration);
+//   }
+
+//   static async deleteCollaboration(
+//     request: CollaborationRequest,
+//   ): Promise<void> {
+//     const collaboration = await prisma.cartSharedUser.findFirst({
+//       where: {
+//         cartId: request.cartId,
+//         userId: request.userId,
+//       },
+//     });
+
+//     if (!collaboration) {
+//       throw new NotFoundError("Kolaborator tidak ditemukan pada cart ini");
+//     }
+
+//     await prisma.cartSharedUser.delete({
+//       where: {
+//         id: collaboration.id,
+//       },
+//     });
+//   }
+// }

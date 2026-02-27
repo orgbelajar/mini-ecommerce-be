@@ -24,16 +24,16 @@ import { User } from "../../../../generated/prisma/client";
 
 export class CartRepositories {
   // Done
-  static async verifyCartOwner(request: VerifyCartOwnerRequest): Promise<void> {
+  static async verifyCartOwner(request: VerifyCartOwnerRequest, ownerId: User): Promise<void> {
     const cart = await prisma.cart.findUnique({
-      where: { id: request.cartId },
+      where: { id: request.cartId},
     });
 
     if (!cart) {
       throw new NotFoundError("Cart tidak ditemukan");
     }
 
-    if (cart.ownerId !== request.ownerId) {
+    if (cart.ownerId !== ownerId.id) {
       throw new AuthorizationError("Anda tidak berhak mengakses cart ini");
     }
 
@@ -42,14 +42,11 @@ export class CartRepositories {
 
   // Done
   static async verifyCartAccess(
-    request: VerifyCartAccessRequest,
+    request: VerifyCartAccessRequest, userId: User
   ): Promise<void> {
     try {
       // Cek apakah dia owner
-      await this.verifyCartOwner({
-        cartId: request.cartId,
-        ownerId: request.userId,
-      });
+      await this.verifyCartOwner(request, userId);
       // error berisi AuthorizationError dari pengecekan owner
     } catch (error) {
       // Jika bukan owner (AuthorizationError) dan cart tidak ditemukan akan throw NotFoundError
@@ -59,7 +56,7 @@ export class CartRepositories {
 
       try {
         // Jika bukan owner dan cart ditemukan, cek apakah dia collaborator
-        await CollaborationRepositories.verifyCollaborator(request);
+        await CollaborationRepositories.verifyCollaborator(request, userId);
       } catch {
         // Jika bukan collaborator, lempar error asli dari pengecekan owner (AuthorizationError)
         throw error;
