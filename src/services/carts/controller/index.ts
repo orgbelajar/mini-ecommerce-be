@@ -6,7 +6,6 @@ import {
   deleteProductFromCartPayloadSchema,
 } from "../validator/index";
 import { authMiddleware } from "../../../middlewares/auth";
-import { User } from "../../../../generated/prisma/client";
 import { ApplicationVariables } from "../../../model/app-model";
 
 export const cartController = new Hono<{ Variables: ApplicationVariables }>();
@@ -14,7 +13,7 @@ export const cartController = new Hono<{ Variables: ApplicationVariables }>();
 cartController.use(authMiddleware);
 
 cartController.post("/api/cart", async (c) => {
-  const user = c.get("user") as User; // from authMiddleware c.set("user", { id: user.id });, example: "user-9pW6MNVi_7wgGI2js"
+  const user = c.get("user");
   const request = addCartPayloadSchema.parse(await c.req.json());
 
   const response = await CartRepositories.addCart(user, request);
@@ -30,7 +29,7 @@ cartController.post("/api/cart", async (c) => {
 });
 
 cartController.get("/api/carts", async (c) => {
-  const user = c.get("user") as User;
+  const user = c.get("user");
   const response = await CartRepositories.getCarts(user);
 
   return c.json(
@@ -44,7 +43,7 @@ cartController.get("/api/carts", async (c) => {
 
 cartController.delete("/api/cart/:id", async (c) => {
   const cartId = c.req.param("id");
-  const user = c.get("user") as User;
+  const user = c.get("user");
 
   await CartRepositories.verifyCartOwner({ cartId }, user);
   await CartRepositories.deleteCartById({ cartId });
@@ -62,7 +61,7 @@ cartController.delete("/api/cart/:id", async (c) => {
 cartController.post("/api/cart/:id/product", async (c) => {
   const request = addProductToCartPayloadSchema.parse(await c.req.json());
   const cartId = c.req.param("id");
-  const user = c.get("user") as User;
+  const user = c.get("user");
 
   await CartRepositories.verifyCartAccess({ cartId }, user);
 
@@ -85,7 +84,7 @@ cartController.post("/api/cart/:id/product", async (c) => {
 // Done
 cartController.get("/api/cart/:id/products", async (c) => {
   const cartId = c.req.param("id");
-  const user = c.get("user") as User;
+  const user = c.get("user");
 
   await CartRepositories.verifyCartAccess({ cartId }, user);
 
@@ -104,7 +103,7 @@ cartController.get("/api/cart/:id/products", async (c) => {
 cartController.delete("/api/carts/:id/products", async (c) => {
   const request = deleteProductFromCartPayloadSchema.parse(await c.req.json());
   const cartId = c.req.param("id");
-  const user = c.get("user") as User;
+  const user = c.get("user");
 
   await CartRepositories.verifyCartAccess({ cartId }, user);
 
@@ -125,7 +124,7 @@ cartController.delete("/api/carts/:id/products", async (c) => {
 // Done
 cartController.get("/api/cart/:id/activities", async (c) => {
   const cartId = c.req.param("id");
-  const user = c.get("user") as User;
+  const user = c.get("user");
 
   await CartRepositories.verifyCartAccess({ cartId }, user);
 

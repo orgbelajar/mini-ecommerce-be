@@ -3,20 +3,17 @@ import { CollaborationRepositories } from "../repositories/index";
 import { CartRepositories } from "../../carts/repositories/index";
 import { collaborationPayloadSchema } from "../validator/index";
 import { authMiddleware } from "../../../middlewares/auth";
-import { User } from "../../../../generated/prisma/client";
+import { ApplicationVariables } from "../../../model/app-model";
 
-type Variables = {
-  user: {
-    id: string;
-  };
-};
-
-export const collaborationController = new Hono<{ Variables: Variables }>();
+export const collaborationController = new Hono<{
+  Variables: ApplicationVariables;
+}>();
 
 collaborationController.use(authMiddleware);
 
+// TODO
 collaborationController.post("/api/collaborations", async (c) => {
-  const user = c.get("user") as User;
+  const user = c.get("user");
   const request = collaborationPayloadSchema.parse(await c.req.json());
 
   // Hanya owner cart yang berhak menambah kolaborator
@@ -37,8 +34,9 @@ collaborationController.post("/api/collaborations", async (c) => {
   );
 });
 
+// TODO
 collaborationController.delete("/api/collaborations", async (c) => {
-  const user = c.get("user") as User;
+  const user = c.get("user");
   const request = collaborationPayloadSchema.parse(await c.req.json());
 
   // Hanya owner cart yang berhak menghapus kolaborator
