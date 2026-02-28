@@ -4,8 +4,8 @@ import {
   UserResponse,
   toUserResponse,
   VerifyUsernameRequest,
+  VerifyUserCredentialRequest,
 } from "../../../model/user-model";
-import { VerifyUserCredentialRequest } from "../../../model/auth-model";
 import { nanoid } from "nanoid";
 import {
   InvariantError,

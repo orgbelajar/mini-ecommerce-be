@@ -10,7 +10,8 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
       const user = await TokenManager.verifyAccessToken(
         token.split("Bearer ")[1],
       );
-      c.set("user", user); // contain user id example "user-9pW6MNVi_7wgGI2js"
+      // Bila verifikasi berhasil, payload token (misalnya data user) akan disimpan di context
+      c.set("user", user); // contain id & username user
       await next();
       return;
     } catch (error) {
@@ -18,5 +19,6 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
     }
   }
 
+  //  Bila verifikasi gagal atau token tidak ditemukan, server akan langsung menolak request dengan status 401 Unauthorized.
   return c.json({ message: "Unauthorized" }, 401);
 };

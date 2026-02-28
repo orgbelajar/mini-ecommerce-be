@@ -1,11 +1,12 @@
 import { prisma } from "../../../applications/database";
 import InvariantError from "../../../exceptions/invariant-error";
+import { RefreshTokenRequest } from "../../../model/auth-model";
 
 export class AuthenticationRepository {
-  static async addRefreshToken(token: string) {
+  static async addRefreshToken(request: RefreshTokenRequest): Promise<void> {
     const result = await prisma.authentication.findUnique({
       where: {
-        token,
+        token: request.token,
       },
     });
 
@@ -13,31 +14,25 @@ export class AuthenticationRepository {
       throw new InvariantError("Refresh token sudah ada");
     }
 
-    return prisma.authentication.create({
-      data: {
-        token,
-      },
-    });
+    await prisma.authentication.create({ data: { token: request.token } });
   }
 
-  static async verifyRefreshToken(token: string) {
+  static async verifyRefreshToken(request: RefreshTokenRequest): Promise<void> {
     const result = await prisma.authentication.findUnique({
       where: {
-        token,
+        token: request.token,
       },
     });
 
     if (!result) {
       throw new InvariantError("Refresh token tidak valid");
     }
-
-    return result;
   }
 
-  static async deleteRefreshToken(token: string) {
-    return prisma.authentication.delete({
+  static async deleteRefreshToken(request: RefreshTokenRequest): Promise<void> {
+    await prisma.authentication.delete({
       where: {
-        token,
+        token: request.token,
       },
     });
   }

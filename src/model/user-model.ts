@@ -12,6 +12,11 @@ export type UserResponse = {
   fullname: string;
 };
 
+export type VerifyUserCredentialRequest = {
+  username: string;
+  password: string;
+};
+
 export type VerifyUsernameRequest = {
   username: string;
 };

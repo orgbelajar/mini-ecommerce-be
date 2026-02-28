@@ -14,13 +14,14 @@ authenticationController.post("/api/authentications", async (c) => {
 
   const { id, username } = await UserRepository.verifyUserCredential(request);
 
+  // Memberikan id dan username ke dalam token
   const accessToken = await TokenManager.generateAccessToken({ id, username });
   const refreshToken = await TokenManager.generateRefreshToken({
     id,
     username,
   });
 
-  await AuthenticationRepository.addRefreshToken(refreshToken);
+  await AuthenticationRepository.addRefreshToken({ token: refreshToken });
   return c.json(
     {
       status: "success",
@@ -38,7 +39,7 @@ authenticationController.put("/api/authentications", async (c) => {
   const request = refreshTokenPayloadSchema.parse(await c.req.json());
 
   // Cek refresh token di database
-  await AuthenticationRepository.verifyRefreshToken(request.token);
+  await AuthenticationRepository.verifyRefreshToken(request);
 
   const { id, username } = await TokenManager.verifyRefreshToken(request.token);
   const accessToken = await TokenManager.generateAccessToken({ id, username });
@@ -58,8 +59,8 @@ authenticationController.put("/api/authentications", async (c) => {
 authenticationController.delete("/api/authentications", async (c) => {
   const request = refreshTokenPayloadSchema.parse(await c.req.json());
 
-  await AuthenticationRepository.verifyRefreshToken(request.token);
-  await AuthenticationRepository.deleteRefreshToken(request.token);
+  await AuthenticationRepository.verifyRefreshToken(request);
+  await AuthenticationRepository.deleteRefreshToken(request);
 
   return c.json(
     {

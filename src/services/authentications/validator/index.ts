@@ -1,5 +1,6 @@
 import { z, ZodType } from "zod";
-import { RefreshTokenRequest, VerifyUserCredentialRequest } from "../../../model/auth-model";
+import { RefreshTokenRequest } from "../../../model/auth-model";
+import { VerifyUserCredentialRequest } from "../../../model/user-model";
 
 export const refreshTokenPayloadSchema: ZodType<RefreshTokenRequest> = z.object({
   token: z.string().nonempty(),
