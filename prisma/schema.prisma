@@ -101,6 +101,7 @@ model CartSharedUser {
   cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([cartId, userId])
   @@map("cart_shared_users")
 }
 

@@ -29,16 +29,13 @@ export class CollaborationRepositories {
     return true;
   }
 
-  // TODO
+  // Done
   static async addCollaboration(
     request: CollaborationRequest,
-    userId: User,
   ): Promise<CollaborationResponse> {
-    const { cartId } = request;
-
     // Pastikan user eksis
     const user = await prisma.user.findUnique({
-      where: { id: userId.id },
+      where: { id: request.userId },
     });
 
     if (!user) {
@@ -46,50 +43,52 @@ export class CollaborationRepositories {
     }
 
     // Hindari duplikasi
-    // const existingCollab = await prisma.cartSharedUser.findFirst({
-    //   where: {
-    //     cartId,
-    //     userId,
-    //   },
-    // });
+    const existingCollab = await prisma.cartSharedUser.findFirst({
+      where: {
+        cartId: request.cartId,
+        userId: request.userId,
+      },
+    });
 
-    // if (existingCollab) {
-    //   return toCollaborationResponse(existingCollab);
-    // }
+    if (existingCollab) {
+      throw new InvariantError("Kolaborator sudah ada pada cart ini");
+    }
 
-    const id = `collab-${nanoid(16)}`;
+    const id = `collab-${nanoid(17)}`;
 
     const collaboration = await prisma.cartSharedUser.create({
       data: {
         id,
-        cartId,
-        userId: userId.id,
+        cartId: request.cartId,
+        userId: request.userId,
       },
     });
 
     return toCollaborationResponse(collaboration);
   }
+
+  // Done
+  static async deleteCollaboration(
+    request: CollaborationRequest,
+  ): Promise<void> {
+    const collaboration = await prisma.cartSharedUser.findFirst({
+      where: {
+        cartId: request.cartId,
+        userId: request.userId,
+      },
+    });
+
+    if (!collaboration) {
+      throw new NotFoundError("Kolaborator tidak ditemukan pada cart ini");
+    }
+
+    await prisma.cartSharedUser.delete({
+      where: {
+        cartId_userId: {
+          cartId: request.cartId,
+          userId: request.userId,
+        },
+      },
+    });
+  }
 }
-
-// TODO
-//   static async deleteCollaboration(
-//     request: CollaborationRequest,
-//   ): Promise<void> {
-//     const collaboration = await prisma.cartSharedUser.findFirst({
-//       where: {
-//         cartId: request.cartId,
-//         userId: request.userId,
-//       },
-//     });
-
-//     if (!collaboration) {
-//       throw new NotFoundError("Kolaborator tidak ditemukan pada cart ini");
-//     }
-
-//     await prisma.cartSharedUser.delete({
-//       where: {
-//         id: collaboration.id,
-//       },
-//     });
-//   }
-// }
