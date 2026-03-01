@@ -1,6 +1,6 @@
 import { z, ZodType } from "zod";
-import { AddCategoryRequest } from "../../../model/category-model";
+import { CategoryRequest } from "../../../model/category-model";
 
-export const addCategoryPayloadSchema: ZodType<AddCategoryRequest> = z.object({
+export const categoryPayloadSchema: ZodType<CategoryRequest> = z.object({
   name: z.string().min(1).max(100),
 });

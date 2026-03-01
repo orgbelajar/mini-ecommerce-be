@@ -3,14 +3,20 @@ import { Product } from "../../generated/prisma/client";
 export type AddProductRequest = {
   name: string;
   description?: string;
+  image?: string;
   price: number;
   stock: number;
   categoryId: string;
 };
 
+export type AddImageProductRequest = {
+  image: string;
+};
+
 export type EditProductRequest = {
   name?: string;
   description?: string;
+  image?: string;
   price?: number;
   categoryId?: string;
 };
@@ -23,6 +29,7 @@ export type ProductResponse = {
   id: string;
   name: string;
   description: string | null;
+  image: string | null;
   price: number;
   stock: number;
   categoryId: string;
@@ -35,6 +42,7 @@ export function toProductResponse(product: Product): ProductResponse {
     id: product.id,
     name: product.name,
     description: product.description,
+    image: product.image,
     price: product.price,
     stock: product.stock,
     categoryId: product.categoryId,

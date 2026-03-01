@@ -1,14 +1,17 @@
 import { prisma } from "../../../applications/database";
+import { NotFoundError } from "../../../exceptions";
 import {
-  AddCategoryRequest,
+  CategoryRequest,
   CategoryResponse,
+  toAddCategoryResponse,
+  toEditCategoryResponse,
+  toGetCategoryByIdResponse,
 } from "../../../model/category-model";
 import { nanoid } from "nanoid";
-import { InvariantError } from "../../../exceptions/index";
 
 export class CategoryRepositories {
   static async addCategory(
-    request: AddCategoryRequest,
+    request: CategoryRequest,
   ): Promise<CategoryResponse> {
     const id = `category-${nanoid(17)}`;
 
@@ -19,10 +22,44 @@ export class CategoryRepositories {
       },
     });
 
+    return toAddCategoryResponse(category);
+  }
+
+  static async getCategoryById(id: string): Promise<CategoryResponse> {
+    const category = await prisma.category.findUnique({
+      where: {
+        id,
+      },
+    });
+
     if (!category) {
-      throw new InvariantError("Category gagal ditambahkan");
+      throw new NotFoundError("Kategori produk tidak ditemukan");
     }
 
-    return { categoryId: category.id };
+    return toGetCategoryByIdResponse(category);
+  }
+
+  static async editCategoryById(
+    id: string,
+    request: CategoryRequest,
+  ): Promise<CategoryResponse> {
+    const category = await prisma.category.update({
+      where: {
+        id,
+      },
+      data: request,
+    });
+
+    return toEditCategoryResponse(category);
+  }
+
+  static async deleteCategoryById(id: string): Promise<void> {
+    await this.getCategoryById(id);
+
+    await prisma.category.delete({
+      where: {
+        id,
+      },
+    });
   }
 }

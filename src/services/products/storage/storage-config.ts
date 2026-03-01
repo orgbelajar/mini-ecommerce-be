@@ -1,0 +1,32 @@
+import path from "path";
+import fs from "fs/promises";
+
+// Path absolut ke direktori penyimpanan gambar
+export const UPLOAD_DIR = path.resolve(
+  process.cwd(),
+  "src/services/products/files/images",
+);
+
+// Tipe file yang diizinkan
+export const ALLOWED_IMAGE_TYPES = [
+  "image/jpg",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+] as const;
+
+// Maksimum ukuran file (5MB)
+export const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+// Mapping MIME type ke ekstensi file
+export const MIME_TO_EXT: Record<string, string> = {
+  "image/jpg": "jpg",
+  "image/jpeg": "jpeg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
+
+// Buat direktori upload jika belum ada
+export async function ensureUploadDir(): Promise<void> {
+  await fs.mkdir(UPLOAD_DIR, { recursive: true });
+}

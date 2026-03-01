@@ -1,5 +1,6 @@
 import { z, ZodType } from "zod";
 import {
+  AddImageProductRequest,
   AddProductRequest,
   EditProductRequest,
   RestockProductRequest,
@@ -19,6 +20,11 @@ export const editProductPayloadSchema: ZodType<EditProductRequest> = z.object({
   price: z.number().int().min(0).optional(),
   categoryId: z.string().min(1).max(50).optional(),
 });
+
+export const addImageProductPayloadSchema: ZodType<AddImageProductRequest> =
+  z.object({
+    image: z.string().min(1),
+  });
 
 export const restockProductPayloadSchema: ZodType<RestockProductRequest> =
   z.object({

@@ -14,7 +14,6 @@ model User {
   fullname    String           @db.VarChar(100)
   createdAt   DateTime         @default(now()) @db.Timestamptz(6)
   updatedAt   DateTime         @updatedAt @db.Timestamptz(6)
-  // activities  CartActivity[]
   sharedCarts CartSharedUser[]
   carts       Cart[]
   wishlist    Wishlist[]
@@ -39,17 +38,17 @@ model Category {
 }
 
 model Product {
-  id          String         @id @db.VarChar(50)
-  name        String         @db.VarChar(150)
+  id          String     @id @db.VarChar(50)
+  name        String     @db.VarChar(150)
   description String?
+  image       String?    @db.Text
   price       Int
   stock       Int
-  categoryId  String         @db.VarChar(50)
-  createdAt   DateTime       @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime       @updatedAt @db.Timestamptz(6)
-  // activities  CartActivity[]
+  categoryId  String     @db.VarChar(50)
+  createdAt   DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime   @updatedAt @db.Timestamptz(6)
   cartItems   CartItem[]
-  category    Category       @relation(fields: [categoryId], references: [id])
+  category    Category   @relation(fields: [categoryId], references: [id])
   wishlisted  Wishlist[]
 
   @@map("products")
@@ -106,17 +105,15 @@ model CartSharedUser {
 }
 
 model CartActivity {
-  id        String   @id @db.VarChar(50)
-  cartId    String   @db.VarChar(50)
-  productId String   @db.VarChar(50)
-  productName String @db.VarChar(100)  
-  userId    String   @db.VarChar(50)
-  username    String @db.VarChar(50)
-  action    String   @db.VarChar(50)
-  time      DateTime @default(now()) @db.Timestamptz(6)
-  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  // product   Product  @relation(fields: [productId], references: [id])
-  // user      User     @relation(fields: [userId], references: [id])
+  id          String   @id @db.VarChar(50)
+  cartId      String   @db.VarChar(50)
+  productId   String   @db.VarChar(50)
+  productName String   @db.VarChar(100)
+  userId      String   @db.VarChar(50)
+  username    String   @db.VarChar(50)
+  action      String   @db.VarChar(50)
+  time        DateTime @default(now()) @db.Timestamptz(6)
+  cart        Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
 
   @@map("cart_activities")
 }

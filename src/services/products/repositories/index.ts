@@ -73,6 +73,24 @@ export class ProductRepository {
     return toProductResponse(product);
   }
 
+  static async addImageProductById(
+    id: string,
+    fileLocation: string,
+  ): Promise<void> {
+    // Cek produk ada atau tidak
+    await this.getProductById(id);
+
+    // Update gambar produk jika gambar produk sebelumnya ada
+    await prisma.product.update({
+      where: {
+        id,
+      },
+      data: {
+        image: fileLocation,
+      },
+    });
+  }
+
   static async deleteProductById(id: string): Promise<void> {
     await this.getProductById(id);
 
