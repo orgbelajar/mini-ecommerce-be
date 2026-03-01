@@ -39,7 +39,7 @@ export class CollaborationRepositories {
     });
 
     if (!user) {
-      throw new NotFoundError("User tidak ditemukan");
+      throw new NotFoundError("Pengguna tidak ditemukan");
     }
 
     // Hindari duplikasi

@@ -11,46 +11,42 @@ export const collaborationController = new Hono<{
 
 collaborationController.use(authMiddleware);
 
-// TODO
+// Done
 collaborationController.post("/api/collaborations", async (c) => {
-  const user = c.get("user");
+  const credential = c.get("user");
   const request = collaborationPayloadSchema.parse(await c.req.json());
 
   // Hanya owner cart yang berhak menambah kolaborator
-  await CartRepositories.verifyCartOwner({
-    cartId: request.cartId,
-    ownerId: user.id,
-  });
+  await CartRepositories.verifyCartOwner(request.cartId, credential);
 
   const response = await CollaborationRepositories.addCollaboration(request);
 
   return c.json(
     {
       status: "success",
-      message: "Kolaborasi berhasil ditambahkan",
+      message:
+        "Pengguna berhasil ditambahkan ke dalam kolaborasi keranjang belanja anda",
       data: response,
     },
     201,
   );
 });
 
-// TODO
+// Done
 collaborationController.delete("/api/collaborations", async (c) => {
-  const user = c.get("user");
+  const credential = c.get("user");
   const request = collaborationPayloadSchema.parse(await c.req.json());
 
   // Hanya owner cart yang berhak menghapus kolaborator
-  await CartRepositories.verifyCartOwner({
-    cartId: request.cartId,
-    ownerId: user.id,
-  });
+  await CartRepositories.verifyCartOwner(request.cartId, credential);
 
   await CollaborationRepositories.deleteCollaboration(request);
 
   return c.json(
     {
       status: "success",
-      message: "Kolaborasi berhasil dihapus",
+      message:
+        "Pengguna berhasil dihapus dari kolaborasi keranjang belanja anda",
     },
     200,
   );

@@ -13,7 +13,7 @@ userController.post("/api/users", async (c) => {
   return c.json(
     {
       status: "success",
-      message: "User berhasil ditambahkan",
+      message: "Pengguna berhasil ditambahkan",
       data: response,
     },
     201,

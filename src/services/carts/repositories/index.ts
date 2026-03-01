@@ -29,11 +29,13 @@ export class CartRepositories {
     });
 
     if (!cart) {
-      throw new NotFoundError("Cart tidak ditemukan");
+      throw new NotFoundError("Keranjang belanja tidak ditemukan");
     }
 
     if (cart.ownerId !== credential.id) {
-      throw new AuthorizationError("Anda tidak berhak mengakses cart ini");
+      throw new AuthorizationError(
+        "Anda tidak berhak mengakses keranjang belanja ini",
+      );
     }
 
     // return toCartResponse(cart);
@@ -144,7 +146,7 @@ export class CartRepositories {
     });
 
     if (!cart) {
-      throw new NotFoundError("Cart tidak ditemukan");
+      throw new NotFoundError("Keranjang belanja tidak ditemukan");
     }
 
     await prisma.cart.delete({
@@ -227,7 +229,7 @@ export class CartRepositories {
     });
 
     if (!cart) {
-      throw new NotFoundError("Cart tidak ditemukan");
+      throw new NotFoundError("Keranjang belanja tidak ditemukan");
     }
 
     return toCartWithProductsResponse(cart);
@@ -248,7 +250,9 @@ export class CartRepositories {
     });
 
     if (!cartItem) {
-      throw new NotFoundError("Produk di dalam cart tidak ditemukan");
+      throw new NotFoundError(
+        "Produk di dalam keranjang belanja tidak ditemukan",
+      );
     }
 
     if (cartItem.qty > 1) {

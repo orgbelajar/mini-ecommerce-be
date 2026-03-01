@@ -7,11 +7,9 @@ import {
   VerifyUserCredentialRequest,
 } from "../../../model/user-model";
 import { nanoid } from "nanoid";
-import {
-  InvariantError,
-  NotFoundError,
-  AuthenticationError,
-} from "../../../exceptions/index";
+import InvariantError from "../../../exceptions/invariant-error";
+import NotFoundError from "../../../exceptions/not-found-error";
+import AuthenticationError from "../../../exceptions/authentication-error";
 
 export class UserRepository {
   static async registerUser(
@@ -61,7 +59,7 @@ export class UserRepository {
     });
 
     if (!user) {
-      throw new NotFoundError("User tidak ditemukan");
+      throw new NotFoundError("Pengguna tidak ditemukan");
     }
 
     return toUserResponse(user);

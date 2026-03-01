@@ -21,7 +21,7 @@ cartController.post("/api/cart", async (c) => {
   return c.json(
     {
       status: "success",
-      message: "Cart berhasil ditambahkan",
+      message: "Keranjang belanja berhasil ditambahkan",
       data: response,
     },
     201,
@@ -51,7 +51,7 @@ cartController.delete("/api/cart/:id", async (c) => {
   return c.json(
     {
       status: "success",
-      message: "Cart berhasil dihapus",
+      message: "Keranjang belanja berhasil dihapus",
     },
     200,
   );
@@ -70,7 +70,7 @@ cartController.post("/api/cart/:id/product", async (c) => {
   return c.json(
     {
       status: "success",
-      message: "Produk berhasil ditambahkan ke cart",
+      message: "Produk berhasil ditambahkan ke keranjang belanja",
     },
     201,
   );
@@ -107,7 +107,7 @@ cartController.delete("/api/carts/:id/products", async (c) => {
   return c.json(
     {
       status: "success",
-      message: "Produk berhasil dihapus dari cart",
+      message: "Produk berhasil dihapus dari keranjang belanja",
     },
     200,
   );

@@ -7,7 +7,7 @@ import {
   toProductResponse,
 } from "../../../model/product-model";
 import { nanoid } from "nanoid";
-import { NotFoundError } from "../../../exceptions/index";
+import NotFoundError from "../../../exceptions/not-found-error";
 
 export class ProductRepository {
   static async addProduct(
