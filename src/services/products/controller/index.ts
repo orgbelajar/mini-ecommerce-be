@@ -103,24 +103,29 @@ productController.post("/api/product/:id/image", async (c) => {
 });
 
 productController.get("/api/products", async (c) => {
-    const request: GetProductsRequest = {
+  const request: GetProductsRequest = {
     page: Number(c.req.query("page") ?? 1), // default ke halaman 1 jika tidak disertakan
     size: Number(c.req.query("size") ?? 10), // default 10 item per halaman jika tidak disertakan
     name: c.req.query("name"),
-    min_price: c.req.query("min_price") ? Number(c.req.query("min_price")) : undefined,
-    max_price: c.req.query("max_price") ? Number(c.req.query("max_price")) : undefined,
+    min_price: c.req.query("min_price")
+      ? Number(c.req.query("min_price"))
+      : undefined,
+    max_price: c.req.query("max_price")
+      ? Number(c.req.query("max_price"))
+      : undefined,
     in_stock: c.req.query("in_stock") === "true",
     category_slug: c.req.query("category_slug"),
     sort_by: c.req.query("sort_by") as GetProductsRequest["sort_by"],
     sort_order: c.req.query("sort_order") as GetProductsRequest["sort_order"],
   };
 
-  const response = await ProductRepository.getProducts(request);
+  const { data, paging } = await ProductRepository.getProducts(request);
 
   return c.json(
     {
       status: "success",
-      data: response,
+      data,
+      paging,
     },
     200,
   );
@@ -187,21 +192,28 @@ productController.delete("/api/product/:id", async (c) => {
 });
 
 // Endpoint likes — memerlukan autentikasi
-productController.post("/api/product/:id/wishlist", authMiddleware, async (c) => {
-  const productId = c.req.param("id");
-  const credential = c.get("user");
+productController.post(
+  "/api/product/:id/wishlist",
+  authMiddleware,
+  async (c) => {
+    const productId = c.req.param("id");
+    const credential = c.get("user");
 
-  const response = await ProductRepository.wishlistProduct(productId, credential);
+    const response = await ProductRepository.wishlistProduct(
+      productId,
+      credential,
+    );
 
-  return c.json(
-    {
-      status: "success",
-      message: "Produk berhasil dimasukkan ke wishlist",
-      data: response,
-    },
-    201,
-  );
-});
+    return c.json(
+      {
+        status: "success",
+        message: "Produk berhasil dimasukkan ke wishlist",
+        data: response,
+      },
+      201,
+    );
+  },
+);
 
 productController.delete(
   "/api/product/:id/wishlist",
@@ -222,16 +234,20 @@ productController.delete(
   },
 );
 
-productController.get("/api/product/:id/wishlist", authMiddleware, async (c) => {
-  const productId = c.req.param("id");
+productController.get(
+  "/api/product/:id/wishlist",
+  authMiddleware,
+  async (c) => {
+    const productId = c.req.param("id");
 
-  const response = await ProductRepository.getProductWishlist(productId);
+    const response = await ProductRepository.getProductWishlist(productId);
 
-  return c.json(
-    {
-      status: "success",
-      data: response,
-    },
-    200,
-  );
-});
+    return c.json(
+      {
+        status: "success",
+        data: response,
+      },
+      200,
+    );
+  },
+);

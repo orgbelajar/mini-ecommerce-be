@@ -4,10 +4,16 @@ import {
   EditProductRequest,
   RestockProductRequest,
   ProductResponse,
+  ProductDetailResponse,
   toProductResponse,
   GetProductsRequest,
   Pageable,
   WishlistCountResponse,
+  toProductDetailResponse,
+  ProductUpdatedResponse,
+  toProductUpdatedResponse,
+  ProductCreatedResponse,
+  toProductCreatedResponse,
 } from "../../../model/product-model";
 import { nanoid } from "nanoid";
 import NotFoundError from "../../../exceptions/not-found-error";
@@ -17,7 +23,7 @@ import { User } from "../../../../generated/prisma/client";
 export class ProductRepository {
   static async addProduct(
     request: AddProductRequest,
-  ): Promise<ProductResponse> {
+  ): Promise<ProductCreatedResponse> {
     const id = `product-${nanoid(17)}`;
 
     const product = await prisma.product.create({
@@ -27,7 +33,7 @@ export class ProductRepository {
       },
     });
 
-    return toProductResponse(product);
+    return toProductCreatedResponse(product);
   }
 
   static async getProducts(
@@ -113,7 +119,7 @@ export class ProductRepository {
     };
   }
 
-  static async getProductById(id: string): Promise<ProductResponse> {
+  static async getProductById(id: string): Promise<ProductDetailResponse> {
     const product = await prisma.product.findUnique({
       where: {
         id,
@@ -124,13 +130,13 @@ export class ProductRepository {
       throw new NotFoundError("Produk tidak ditemukan");
     }
 
-    return toProductResponse(product);
+    return toProductDetailResponse(product);
   }
 
   static async editProductById(
     id: string,
     request: EditProductRequest,
-  ): Promise<ProductResponse> {
+  ): Promise<ProductUpdatedResponse> {
     await this.getProductById(id);
 
     const dataToUpdate: EditProductRequest = { ...request };
@@ -142,13 +148,13 @@ export class ProductRepository {
       data: dataToUpdate,
     });
 
-    return toProductResponse(product);
+    return toProductUpdatedResponse(product);
   }
 
   static async restockProduct(
     id: string,
     request: RestockProductRequest,
-  ): Promise<ProductResponse> {
+  ): Promise<ProductUpdatedResponse> {
     await this.getProductById(id);
 
     const product = await prisma.product.update({
@@ -158,7 +164,7 @@ export class ProductRepository {
       },
     });
 
-    return toProductResponse(product);
+    return toProductUpdatedResponse(product);
   }
 
   static async addImageProductById(
@@ -187,7 +193,10 @@ export class ProductRepository {
     });
   }
 
-  static async wishlistProduct(productId: string, credential: User): Promise<void> {
+  static async wishlistProduct(
+    productId: string,
+    credential: User,
+  ): Promise<void> {
     // Cek produk ada
     await this.getProductById(productId);
 
@@ -236,7 +245,9 @@ export class ProductRepository {
     });
   }
 
-  static async getProductWishlist(productId: string): Promise<WishlistCountResponse> {
+  static async getProductWishlist(
+    productId: string,
+  ): Promise<WishlistCountResponse> {
     // Cek produk ada + ambil data nama
     const product = await this.getProductById(productId);
 

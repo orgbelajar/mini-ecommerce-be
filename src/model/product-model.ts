@@ -49,7 +49,40 @@ export type ProductResponse = {
   price: number;
   stock: number;
   categoryId: string;
+};
+
+export type ProductDetailResponse = {
+  id: string;
+  name: string;
+  description?: string;
+  image?: string;
+  price: number;
+  stock: number;
+  categoryId: string;
   createdAt: Date;
+  updatedAt: Date;
+};
+
+
+export type ProductCreatedResponse = {
+  id: string;
+  name: string;
+  description: string | null;
+  image: string | null;
+  price: number;
+  stock: number;
+  categoryId: string;
+  createdAt: Date;
+};
+
+export type ProductUpdatedResponse = {
+  id: string;
+  name: string;
+  description: string | null;
+  image: string | null;
+  price: number;
+  stock: number;
+  categoryId: string;
   updatedAt: Date;
 };
 
@@ -68,10 +101,42 @@ export function toProductResponse(product: Product): ProductResponse {
     price: product.price,
     stock: product.stock,
     categoryId: product.categoryId,
-    createdAt: product.createdAt,
-    updatedAt: product.updatedAt,
   };
 }
+
+export const toProductDetailResponse = (product: Product): ProductDetailResponse => ({
+  id: product.id,
+  name: product.name,
+  description: product.description ?? undefined,
+  image: product.image ?? undefined,
+  price: product.price,
+  stock: product.stock,
+  categoryId: product.categoryId,
+  createdAt: product.createdAt,
+  updatedAt: product.updatedAt, 
+});
+
+export const toProductCreatedResponse = (product: Product): ProductCreatedResponse => ({
+  id: product.id,
+  name: product.name,
+  description: product.description,
+  image: product.image,
+  price: product.price,
+  stock: product.stock,
+  categoryId: product.categoryId,
+  createdAt: product.createdAt,
+});
+
+export const toProductUpdatedResponse = (product: Product): ProductUpdatedResponse => ({
+  id: product.id,
+  name: product.name,
+  description: product.description,
+  image: product.image,
+  price: product.price,
+  stock: product.stock,
+  categoryId: product.categoryId,
+  updatedAt: product.updatedAt,
+});
 
 export type Pageable<T> = {
   data: T[];
