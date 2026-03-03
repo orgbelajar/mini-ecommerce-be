@@ -5,9 +5,9 @@ import {
   RestockProductRequest,
   ProductResponse,
   toProductResponse,
-  LikesCountResponse,
   GetProductsRequest,
   Pageable,
+  WishlistCountResponse,
 } from "../../../model/product-model";
 import { nanoid } from "nanoid";
 import NotFoundError from "../../../exceptions/not-found-error";
@@ -61,7 +61,7 @@ export class ProductRepository {
     }
 
     // Filter produk yang hanya tersedia (stock > 0)
-    // Jika in_stock = false atau tidak disertakan maka tampilkan semua produk tanpa filter stock, artinya produk yang stock 0 tetap ditampilkan
+    // Jika in_stock = false maka tampilkan semua produk tanpa filter stock, artinya produk yang stock 0 tetap ditampilkan
     // Jika in_stock = true maka tampilkan produk yang stock > 0
     if (request.in_stock) {
       filters.push({
@@ -72,10 +72,11 @@ export class ProductRepository {
     }
 
     // Filter berdasarkan kategori melalui relasi dengan tabel category
+    // JOIN categories c ON p."categoryId" = c.id WHERE c.slug = 'electronics'
     if (request.category_slug) {
       filters.push({
         category: {
-          slug: request.category_slug,
+          slug: request.category_slug, // example slug: 'electronics'
         },
       });
     }
@@ -186,23 +187,23 @@ export class ProductRepository {
     });
   }
 
-  static async likeProduct(productId: string, credential: User): Promise<void> {
+  static async wishlistProduct(productId: string, credential: User): Promise<void> {
     // Cek produk ada
     await this.getProductById(productId);
 
-    // Cek apakah sudah pernah like
-    const existingLike = await prisma.wishlist.findFirst({
+    // Cek apakah sudah pernah wishlist
+    const existingWishlist = await prisma.wishlist.findFirst({
       where: {
         userId: credential.id,
         productId,
       },
     });
 
-    if (existingLike) {
-      throw new InvariantError("Anda sudah menyukai produk ini");
+    if (existingWishlist) {
+      throw new InvariantError("Anda sudah memasukkan produk ini ke wishlist");
     }
 
-    const id = `like-${nanoid(17)}`;
+    const id = `wishlist-${nanoid(17)}`;
 
     await prisma.wishlist.create({
       data: {
@@ -213,38 +214,38 @@ export class ProductRepository {
     });
   }
 
-  static async unlikeProduct(
+  static async removeFromWishlist(
     productId: string,
     credential: User,
   ): Promise<void> {
-    const like = await prisma.wishlist.findFirst({
+    const wishlist = await prisma.wishlist.findFirst({
       where: {
         userId: credential.id,
         productId,
       },
     });
 
-    if (!like) {
-      throw new NotFoundError("Anda belum menyukai produk ini");
+    if (!wishlist) {
+      throw new NotFoundError("Anda belum memasukkan produk ini ke wishlist");
     }
 
     await prisma.wishlist.delete({
       where: {
-        id: like.id,
+        id: wishlist.id,
       },
     });
   }
 
-  static async getProductLikes(productId: string): Promise<LikesCountResponse> {
+  static async getProductWishlist(productId: string): Promise<WishlistCountResponse> {
     // Cek produk ada + ambil data nama
     const product = await this.getProductById(productId);
 
-    const likes = await prisma.wishlist.count({
+    const wishlist = await prisma.wishlist.count({
       where: {
         productId,
       },
     });
 
-    return { productId, productName: product.name, likes };
+    return { productId, productName: product.name, wishlist };
   }
 }

@@ -104,8 +104,8 @@ productController.post("/api/product/:id/image", async (c) => {
 
 productController.get("/api/products", async (c) => {
     const request: GetProductsRequest = {
-    page: Number(c.req.query("page") ?? 1),
-    size: Number(c.req.query("size") ?? 10),
+    page: Number(c.req.query("page") ?? 1), // default ke halaman 1 jika tidak disertakan
+    size: Number(c.req.query("size") ?? 10), // default 10 item per halaman jika tidak disertakan
     name: c.req.query("name"),
     min_price: c.req.query("min_price") ? Number(c.req.query("min_price")) : undefined,
     max_price: c.req.query("max_price") ? Number(c.req.query("max_price")) : undefined,
@@ -187,16 +187,16 @@ productController.delete("/api/product/:id", async (c) => {
 });
 
 // Endpoint likes — memerlukan autentikasi
-productController.post("/api/product/:id/likes", authMiddleware, async (c) => {
+productController.post("/api/product/:id/wishlist", authMiddleware, async (c) => {
   const productId = c.req.param("id");
   const credential = c.get("user");
 
-  const response = await ProductRepository.likeProduct(productId, credential);
+  const response = await ProductRepository.wishlistProduct(productId, credential);
 
   return c.json(
     {
       status: "success",
-      message: "Produk berhasil disukai",
+      message: "Produk berhasil dimasukkan ke wishlist",
       data: response,
     },
     201,
@@ -204,28 +204,28 @@ productController.post("/api/product/:id/likes", authMiddleware, async (c) => {
 });
 
 productController.delete(
-  "/api/product/:id/likes",
+  "/api/product/:id/wishlist",
   authMiddleware,
   async (c) => {
     const productId = c.req.param("id");
     const credential = c.get("user");
 
-    await ProductRepository.unlikeProduct(productId, credential);
+    await ProductRepository.removeFromWishlist(productId, credential);
 
     return c.json(
       {
         status: "success",
-        message: "Batal menyukai produk",
+        message: "Produk berhasil dihapus dari wishlist",
       },
       200,
     );
   },
 );
 
-productController.get("/api/product/:id/likes", authMiddleware, async (c) => {
+productController.get("/api/product/:id/wishlist", authMiddleware, async (c) => {
   const productId = c.req.param("id");
 
-  const response = await ProductRepository.getProductLikes(productId);
+  const response = await ProductRepository.getProductWishlist(productId);
 
   return c.json(
     {

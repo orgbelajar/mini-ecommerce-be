@@ -53,10 +53,10 @@ export type ProductResponse = {
   updatedAt: Date;
 };
 
-export type LikesCountResponse = {
+export type WishlistCountResponse = {
   productId: string;
   productName: string;
-  likes: number;
+  wishlist: number;
 };
 
 export function toProductResponse(product: Product): ProductResponse {
