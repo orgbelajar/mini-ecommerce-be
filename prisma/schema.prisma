@@ -30,6 +30,7 @@ model Authentication {
 model Category {
   id        String    @id @db.VarChar(50)
   name      String    @db.VarChar(100)
+  slug      String    @unique @db.VarChar(180) 
   createdAt DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt DateTime  @updatedAt @db.Timestamptz(6)
   products  Product[]

@@ -11,6 +11,7 @@ import {
   toGetCategoryWithProductsResponse,
 } from "../../../model/category-model";
 import { nanoid } from "nanoid";
+import slugify from "slugify";
 
 export class CategoryRepositories {
   static async addCategory(
@@ -18,9 +19,13 @@ export class CategoryRepositories {
   ): Promise<CategoryResponse> {
     const id = `category-${nanoid(17)}`;
 
+    const baseSlug = slugify(request.name, { lower: true });
+    const slug = `${baseSlug}-${id.slice(-5)}`;
+
     const category = await prisma.category.create({
       data: {
         id,
+        slug,
         ...request,
       },
     });
@@ -71,11 +76,17 @@ export class CategoryRepositories {
   ): Promise<CategoryResponse> {
     await this.getCategoryById(id);
 
+    const baseSlug = slugify(request.name, { lower: true });
+    const slug = `${baseSlug}-${id.slice(-5)}`;
+
     const category = await prisma.category.update({
       where: {
         id,
       },
-      data: request,
+      data: {
+        ...request,
+        slug,
+      },
     });
 
     return toEditCategoryResponse(category);
