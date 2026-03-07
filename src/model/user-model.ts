@@ -10,6 +10,7 @@ export type UserResponse = {
   id: string;
   username: string;
   fullname: string;
+  createdAt: Date;
 };
 
 export type VerifyUserCredentialRequest = {
@@ -26,5 +27,6 @@ export function toUserResponse(user: User): UserResponse {
     id: user.id,
     username: user.username,
     fullname: user.fullname,
+    createdAt: user.createdAt,
   };
 }

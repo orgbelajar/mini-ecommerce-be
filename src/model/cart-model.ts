@@ -4,6 +4,13 @@ export type AddCartPayload = {
   name: string;
 };
 
+export type AddCartResponse = {
+  id: string;
+  name: string;
+  ownerId: string;
+  createdAt: Date;
+};
+
 export type DeleteProductFromCartPayload = {
   productId: string;
 };
@@ -27,13 +34,11 @@ export type DeleteProductFromCartRequest = {
 export type CartResponse = {
   id: string;
   name: string;
-  // ownerId: string;
   ownerUsername?: string;
   createdAt: Date;
-  updatedAt: Date;
 };
 
-export type CartProductItem = {
+type CartProductItem = {
   id: string;
   productName: string;
   price: number;
@@ -60,7 +65,15 @@ export function toCartResponse(cart: Cart): CartResponse {
     id: cart.id,
     name: cart.name,
     createdAt: cart.createdAt,
-    updatedAt: cart.updatedAt,
+  };
+}
+
+export function toAddCartResponse(cart: Cart): AddCartResponse {
+  return {
+    id: cart.id,
+    name: cart.name,
+    ownerId: cart.ownerId,
+    createdAt: cart.createdAt,
   };
 }
 
