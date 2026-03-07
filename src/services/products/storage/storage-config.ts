@@ -34,6 +34,7 @@ export async function ensureUploadDir(): Promise<void> {
 // Hapus gambar lama dari disk jika ada
 export async function deleteOldImage(imageUrl: string): Promise<void> {
   try {
+    // ambil nama file dari url
     const oldFilename = decodeURIComponent(imageUrl.split("/images/")[1]);
     await fs.unlink(`${UPLOAD_DIR}/${oldFilename}`);
   } catch {
